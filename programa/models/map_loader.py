@@ -87,12 +87,14 @@ class MapLoader:
                         # If current is Cruce, can go anywhere valid
                         # But wait, Cruce allows exit to any connected path?
                         # Usually yes, but destination must accept it.
-                        elif val == 'C':
-                            # Can go N if neighbor is N or C
-                            if direction == 'N' and n_val in ['N', 'C', 'SF']: can_move = True
-                            if direction == 'S' and n_val in ['S', 'C', 'SF']: can_move = True
-                            if direction == 'L' and n_val in ['L', 'C', 'SF']: can_move = True
-                            if direction == 'R' and n_val in ['R', 'C', 'SF']: can_move = True
+                        elif val == 'C' or val == 'ND':
+                            # Can go N if neighbor is N or C or ND or SF
+                            # ND behaves like an intersection of 2-way streets usually, or just permissive.
+                            # Spec: "Calles sin dirección definida" -> 2 way.
+                            if direction == 'N' and n_val in ['N', 'C', 'SF', 'ND']: can_move = True
+                            if direction == 'S' and n_val in ['S', 'C', 'SF', 'ND']: can_move = True
+                            if direction == 'L' and n_val in ['L', 'C', 'SF', 'ND']: can_move = True
+                            if direction == 'R' and n_val in ['R', 'C', 'SF', 'ND']: can_move = True
 
                         # Handle SF (Start/Finish or Endpoint) as permissive?
                         # Spec says SF is just a location. Assume it behaves like C or 0? 

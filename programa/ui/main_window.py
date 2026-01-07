@@ -37,6 +37,8 @@ class MainWindow:
         frame_map = tk.LabelFrame(toolbar, text="Mapa", bg="#f0f0f0", font=("Arial", 10, "bold"), padx=5, pady=5)
         frame_map.pack(fill="x", pady=5)
         tk.Button(frame_map, text="📂 Cargar Mapa (CSV)", command=self._load_map_dialog, bg="#e0e0e0").pack(fill="x")
+        self.btn_theme = tk.Button(frame_map, text="🌗 Tema Oscuro/Claro", command=self._toggle_theme, bg="#e0e0e0")
+        self.btn_theme.pack(fill="x", pady=2)
         
         # Group 2: Navegación
         frame_nav = tk.LabelFrame(toolbar, text="Navegación", bg="#f0f0f0", font=("Arial", 10, "bold"), padx=5, pady=5)
@@ -70,6 +72,9 @@ class MainWindow:
         tk.Button(btn_frame_dest, text="🗑️ Borrar", command=self._delete_destination, width=8).pack(side="right")
         tk.Button(frame_dest, text="📍 Ir a Destino", command=self._load_destination_to_end).pack(fill="x", pady=2)
 
+        # Exit Button
+        tk.Button(toolbar, text="❌ Salir", command=self.root.quit, bg="#FFCDD2", fg="red").pack(fill="x", pady=20, side="bottom")
+
         # Legend
         frame_legend = tk.LabelFrame(toolbar, text="Leyenda", bg="#f0f0f0", font=("Arial", 9), padx=5, pady=5)
         frame_legend.pack(fill="x", pady=5, side="bottom")
@@ -92,12 +97,23 @@ class MainWindow:
             self._load_map(filepath)
 
     def _load_map(self, filepath):
+        """
+        Loads the map from the CSV file and initializes the graph.
+        Inputs: filepath (str)
+        Outputs: None (Updates internal state)
+        Restrictions: File must be a valid CSV.
+        """
         self.map_loader = MapLoader(filepath)
         self._refresh_graph()
         self.map_canvas.set_map(self.graph, self.map_loader.raw_matrix)
         messagebox.showinfo("Mapa Cargado", "El mapa ha sido cargado exitosamente.")
 
     def _refresh_graph(self):
+        """
+        Rebuilds the graph with weights based on the current hour.
+        Inputs: None (Reads from spin_hour)
+        Outputs: None
+        """
         # Reload graph based on current hour
         if not self.map_loader: return
         
@@ -115,6 +131,12 @@ class MainWindow:
         self._refresh_graph()
 
     def _on_map_click(self, x, y):
+        """
+        Handler for map clicks. Sets start or end points.
+        Inputs: x, y (grid coordinates)
+        Outputs: None
+        Restrictions: Cannot select blocked cells.
+        """
         # Select interactively
         if not self.start_point:
             self.start_point = (x, y)
@@ -145,6 +167,12 @@ class MainWindow:
         self.map_canvas.delete("path")
 
     def _calculate_route(self):
+        """
+        Calculates and visualizes the shortest path.
+        Inputs: None (Uses internal start/end points)
+        Outputs: None (Visualizes on canvas)
+        Restrictions: Start and End must be set.
+        """
         if not self.graph: 
             messagebox.showerror("Error", "No hay mapa cargado")
             return
@@ -162,7 +190,8 @@ class MainWindow:
         self.map_canvas.delete("path")
         if path:
             self.map_canvas.highlight_path(path)
-            messagebox.showinfo("Ruta Calculada", f"Costo estimado: {cost}\nNodos: {len(path)}")
+            messagebox.showinfo("Ruta Calculada", f"Costo estimado: {cost}\nNodos: {len(path)}\n\n(Cierre esta ventana para ver la animación)")
+            self.map_canvas.animate_vehicle(path)
         else:
             messagebox.showwarning("Ruta", "No se encontró un camino válido.")
 
@@ -207,3 +236,12 @@ class MainWindow:
 
     def _modify_map_mode(self):
         messagebox.showinfo("Modificar Mapa", "Funcionalidad Extra: Haga click derecho en el mapa para agregar un POI (Punto de Interés). (No implementado visualmente en este demo rápido)")
+
+    def _toggle_theme(self):
+        current = self.map_canvas.theme
+        new_theme = "light" if current == "dark" else "dark"
+        self.map_canvas.set_theme(new_theme)
+        
+        # Note: Sidebar colors are hardcoded to #f0f0f0, updating them dynamically would require tracking all widgets.
+        # For this prototype, we just update the map which is the main visual element.
+

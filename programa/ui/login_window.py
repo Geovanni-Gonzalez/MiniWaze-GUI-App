@@ -8,7 +8,8 @@ class LoginWindow:
         self.on_login_success = on_login_success
         
         self.root.title("MiniWaze - Login")
-        self.root.geometry("300x200")
+        self.root.geometry("400x300")
+        self.root.resizable(False, False)
         
         self._build_ui()
 
