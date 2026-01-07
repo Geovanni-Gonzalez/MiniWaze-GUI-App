@@ -1,0 +1,202 @@
+import tkinter as tk
+from tkinter import filedialog, messagebox, simpledialog
+from ui.map_canvas import MapCanvas
+from models.map_loader import MapLoader
+from models.pathfinder import Pathfinder
+import os
+
+class MainWindow:
+    def __init__(self, root, current_user):
+        self.root = root
+        self.current_user = current_user
+        self.root.title(f"MiniWaze - Usuario: {current_user}")
+        self.root.geometry("1000x700")
+
+        self.graph = None
+        self.map_loader = None
+        self.start_point = None
+        self.end_point = None
+        self.destinations = {} # Name -> NodeID
+        self.current_hour = 12 # Default normal
+        
+        # UI Components
+        self._build_ui()
+
+    def _build_ui(self):
+        # Toolbar / Sidebar
+        toolbar = tk.Frame(self.root, bg="#eee", padx=10, pady=10, width=200)
+        toolbar.pack(side="left", fill="y")
+        
+        # Map Area
+        self.canvas_frame = tk.Frame(self.root, bg="#333")
+        self.canvas_frame.pack(side="right", expand=True, fill="both")
+        
+        # --- Sidebar Controls ---
+        # 1. Load Map
+        tk.Label(toolbar, text="--- Mapa ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(0,5))
+        tk.Button(toolbar, text="Cargar Mapa (CSV)", command=self._load_map_dialog).pack(fill="x", pady=2)
+        
+        # 2. Points
+        tk.Label(toolbar, text="--- Ruta ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(15,5))
+        self.lbl_start = tk.Label(toolbar, text="Inicio: N/A", bg="#eee", fg="blue")
+        self.lbl_start.pack()
+        self.lbl_end = tk.Label(toolbar, text="Fin: N/A", bg="#eee", fg="red")
+        self.lbl_end.pack()
+        
+        tk.Button(toolbar, text="Limpiar Puntos", command=self._clear_points).pack(fill="x", pady=2)
+        
+        # 3. Time Config
+        tk.Label(toolbar, text="--- Hora (0-23) ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(15,5))
+        self.spin_hour = tk.Spinbox(toolbar, from_=0, to=23, width=5, command=self._on_hour_change)
+        self.spin_hour.delete(0, "end")
+        self.spin_hour.insert(0, 12)
+        self.spin_hour.pack()
+        
+        # 4. Calculate
+        tk.Button(toolbar, text="Calcular Ruta", command=self._calculate_route, bg="#4CAF50", fg="white").pack(fill="x", pady=(10, 2))
+        
+        # 5. Destinations
+        tk.Label(toolbar, text="--- Destinos ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(15,5))
+        self.listbox_dest = tk.Listbox(toolbar, height=5)
+        self.listbox_dest.pack(fill="x")
+        
+        btn_frame_dest = tk.Frame(toolbar, bg="#eee")
+        btn_frame_dest.pack(fill="x")
+        tk.Button(btn_frame_dest, text="Guardar", command=self._save_destination, width=8).pack(side="left", padx=1)
+        tk.Button(btn_frame_dest, text="Borrar", command=self._delete_destination, width=8).pack(side="right", padx=1)
+        tk.Button(toolbar, text="Ir a Destino", command=self._load_destination_to_end).pack(fill="x", pady=2)
+
+        # 6. Extra
+        tk.Label(toolbar, text="--- Extras ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(15,5))
+        tk.Button(toolbar, text="Planificar", command=self._plan_trip).pack(fill="x")
+        tk.Button(toolbar, text="Modificar Mapa", command=self._modify_map_mode).pack(fill="x")
+        
+        # Placeholder Canvas
+        self.map_canvas = MapCanvas(self.canvas_frame, None, [], on_click_callback=self._on_map_click)
+        self.map_canvas.pack(expand=True, fill="both", padx=10, pady=10)
+
+    def _load_map_dialog(self):
+        filepath = filedialog.askopenfilename(
+            initialdir=".", 
+            title="Seleccionar Mapa CSV",
+            filetypes=(("CSV Files", "*.csv"), ("All Files", "*.*"))
+        )
+        if filepath:
+            self._load_map(filepath)
+
+    def _load_map(self, filepath):
+        self.map_loader = MapLoader(filepath)
+        self._refresh_graph()
+        self.map_canvas.set_map(self.graph, self.map_loader.raw_matrix)
+        messagebox.showinfo("Mapa Cargado", "El mapa ha sido cargado exitosamente.")
+
+    def _refresh_graph(self):
+        # Reload graph based on current hour
+        if not self.map_loader: return
+        
+        h = int(self.spin_hour.get())
+        is_peak = (6 <= h <= 9) or (12 <= h <= 13) or (17 <= h <= 20)
+        
+        # Rebuild graph
+        self.graph = self.map_loader.load_graph(is_peak_hour=is_peak)
+        if self.map_canvas:
+            self.map_canvas.graph = self.graph
+
+    def _on_hour_change(self):
+        # When hour changes, we might need to update graph weights?
+        # Only strict requirement is calculation time, but let's update graph to be safe
+        self._refresh_graph()
+
+    def _on_map_click(self, x, y):
+        # Select interactively
+        if not self.start_point:
+            self.start_point = (x, y)
+            self.lbl_start.config(text=f"Inicio: ({x},{y})")
+            # Visual feedback
+            self.map_canvas.create_oval(
+                x*40+10, y*40+10, x*40+30, y*40+30, 
+                fill="blue", outline="white", width=2, tags="marker_start"
+            )
+        elif not self.end_point:
+            self.end_point = (x, y)
+            self.lbl_end.config(text=f"Fin: ({x},{y})")
+            self.map_canvas.create_oval(
+                x*40+10, y*40+10, x*40+30, y*40+30, 
+                fill="red", outline="white", width=2, tags="marker_end"
+            )
+        else:
+            # Maybe reset if clicked again? or ignore
+            pass
+
+    def _clear_points(self):
+        self.start_point = None
+        self.end_point = None
+        self.lbl_start.config(text="Inicio: N/A")
+        self.lbl_end.config(text="Fin: N/A")
+        self.map_canvas.delete("marker_start")
+        self.map_canvas.delete("marker_end")
+        self.map_canvas.delete("path")
+
+    def _calculate_route(self):
+        if not self.graph: 
+            messagebox.showerror("Error", "No hay mapa cargado")
+            return
+        if not self.start_point or not self.end_point:
+            messagebox.showerror("Error", "Seleccione Inicio y Fin")
+            return
+
+        self._refresh_graph() # Ensure weights are correct for current hour
+
+        start_id = f"{self.start_point[0]},{self.start_point[1]}"
+        end_id = f"{self.end_point[0]},{self.end_point[1]}"
+
+        path, cost = Pathfinder.find_path(self.graph, start_id, end_id)
+
+        self.map_canvas.delete("path")
+        if path:
+            self.map_canvas.highlight_path(path)
+            messagebox.showinfo("Ruta Calculada", f"Costo estimado: {cost}\nNodos: {len(path)}")
+        else:
+            messagebox.showwarning("Ruta", "No se encontró un camino válido.")
+
+    def _save_destination(self):
+        if not self.end_point:
+            messagebox.showwarning("Destinos", "Seleccione un punto de fin primero.")
+            return
+            
+        name = simpledialog.askstring("Guardar Destino", "Nombre del destino:")
+        if name:
+            self.destinations[name] = self.end_point
+            self.listbox_dest.insert("end", name)
+
+    def _delete_destination(self):
+        sel = self.listbox_dest.curselection()
+        if not sel: return
+        name = self.listbox_dest.get(sel[0])
+        del self.destinations[name]
+        self.listbox_dest.delete(sel[0])
+
+    def _load_destination_to_end(self):
+        sel = self.listbox_dest.curselection()
+        if not sel: return
+        name = self.listbox_dest.get(sel[0])
+        self.end_point = self.destinations[name]
+        
+        x, y = self.end_point
+        self.lbl_end.config(text=f"Fin: ({x},{y})")
+        self.map_canvas.delete("marker_end")
+        self.map_canvas.create_oval(
+            x*40+10, y*40+10, x*40+30, y*40+30, 
+            fill="red", outline="white", width=2, tags="marker_end"
+        )
+        
+    def _plan_trip(self):
+        # Simple simulation: Ask for dept time, set spinbox, calculate
+        h = simpledialog.askinteger("Planificar", "Hora de salida (0-23):", minvalue=0, maxvalue=23)
+        if h is not None:
+            self.spin_hour.delete(0, "end")
+            self.spin_hour.insert(0, h)
+            self._calculate_route()
+
+    def _modify_map_mode(self):
+        messagebox.showinfo("Modificar Mapa", "Funcionalidad Extra: Haga click derecho en el mapa para agregar un POI (Punto de Interés). (No implementado visualmente en este demo rápido)")

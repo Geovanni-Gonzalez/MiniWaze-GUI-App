@@ -1,2 +1,9 @@
 # MiniWaze-GUI-App
-Aplicación con interfaz gráfica de usuario que simula la aplicación de Waze. Desarrollada con Python
+
+**Estudiante:** Geovanni Gonzalez Aguilar
+**Carné:** 2022163324
+**Estatus de la entrega:** [Excelente]
+
+## Descripción
+
+Aplicación de navegación y mapas desarrollada en Python con Tkinter. Permite cargar mapas desde CSV, visualizar rutas, y gestionar destinos.

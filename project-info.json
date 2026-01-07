@@ -1,0 +1,30 @@
+{
+    "project": "MiniWaze GUI App",
+    "tech": [
+        "Python",
+        "Tkinter/PyQt",
+        "Geospatial Logic"
+    ],
+    "features": [
+        "Interactive GUI for Route Simulation",
+        "Dynamic Traffic Modeling",
+        "Map-based Navigation Interface",
+        "Pathfinding Algorithm Implementation",
+        "Custom UI Icons and Layouts"
+    ],
+    "stack": {
+        "language": "Python",
+        "framework": "GUI Native lib",
+        "tools": [
+            "Pip",
+            "Git",
+            "Custom Graphics"
+        ],
+        "database": "Local Map Data Cache"
+    },
+    "screenshots": [],
+    "description": {
+        "es": "Aplicación con interfaz gráfica de usuario que simula la aplicación de Waze, permitiendo modelar rutas y comportamientos de tráfico en entornos locales.",
+        "en": "GUI application simulating the Waze app, allowing for route modeling and traffic behavior simulation in local environments."
+    }
+}
