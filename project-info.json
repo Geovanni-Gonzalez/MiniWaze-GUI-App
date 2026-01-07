@@ -2,29 +2,30 @@
     "project": "MiniWaze GUI App",
     "tech": [
         "Python",
-        "Tkinter/PyQt",
-        "Geospatial Logic"
+        "Tkinter",
+        "Graph Theory",
+        "Dijkstra Algorithm"
     ],
     "features": [
-        "Interactive GUI for Route Simulation",
-        "Dynamic Traffic Modeling",
-        "Map-based Navigation Interface",
-        "Pathfinding Algorithm Implementation",
-        "Custom UI Icons and Layouts"
+        "Interactive Grid Map with Directional Traffic",
+        "Cost-based Pathfinding (Peak/Normal Hours)",
+        "Visual Route Simulation with Vehicle Animation",
+        "Destination Management (Save/Load/Delete)",
+        "Dark/Light Mode Theme Toggle",
+        "Authentication System"
     ],
     "stack": {
-        "language": "Python",
-        "framework": "GUI Native lib",
+        "language": "Python 3.x",
+        "framework": "Tkinter",
         "tools": [
-            "Pip",
-            "Git",
-            "Custom Graphics"
+            "CSV (Map Data)",
+            "Unittest (Verification)"
         ],
-        "database": "Local Map Data Cache"
+        "database": "File-based (Usuarios.txt, mapa.csv)"
     },
     "screenshots": [],
     "description": {
-        "es": "Aplicación con interfaz gráfica de usuario que simula la aplicación de Waze, permitiendo modelar rutas y comportamientos de tráfico en entornos locales.",
-        "en": "GUI application simulating the Waze app, allowing for route modeling and traffic behavior simulation in local environments."
+        "es": "Aplicación de navegación de escritorio que simula Waze. Utiliza grafos dirigidos ponderados para calcular rutas óptimas basándose en el tráfico (hora pico/normal) y la dirección de las calles. Incluye animación de vehículos y gestión de destinos.",
+        "en": "Desktop navigation application simulating Waze. Uses weighted directed graphs to calculate optimal routes based on traffic (peak/normal hours) and street direction. Includes vehicle animation and destination management."
     }
 }

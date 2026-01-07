@@ -16,17 +16,19 @@ def main():
     user_manager = UserManager(users_path)
 
     def start_app(username):
-        login_window.root.destroy()
+        # Clear the current window (Login)
+        for widget in root.winfo_children():
+            widget.destroy()
         
-        main_root = tk.Tk()
-        app = MainWindow(main_root, username)
+        # Initialize MainWindow using the SAME root
+        app = MainWindow(root, username)
         
         # Load default map for convenience if exists
         map_path = os.path.join(base_dir, "data", "mapa.csv")
         if os.path.exists(map_path):
             app._load_map(map_path)
             
-        main_root.mainloop()
+        # No extra mainloop needed, we are already inside root.mainloop()
 
     # Login
     login_window = LoginWindow(root, user_manager, start_app)
