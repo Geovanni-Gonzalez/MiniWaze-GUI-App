@@ -24,52 +24,59 @@ class MainWindow:
 
     def _build_ui(self):
         # Toolbar / Sidebar
-        toolbar = tk.Frame(self.root, bg="#eee", padx=10, pady=10, width=200)
+        toolbar = tk.Frame(self.root, bg="#f0f0f0", padx=10, pady=10, width=250)
         toolbar.pack(side="left", fill="y")
         
         # Map Area
-        self.canvas_frame = tk.Frame(self.root, bg="#333")
+        self.canvas_frame = tk.Frame(self.root, bg="#333", relief=tk.SUNKEN, borderwidth=2)
         self.canvas_frame.pack(side="right", expand=True, fill="both")
         
         # --- Sidebar Controls ---
-        # 1. Load Map
-        tk.Label(toolbar, text="--- Mapa ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(0,5))
-        tk.Button(toolbar, text="Cargar Mapa (CSV)", command=self._load_map_dialog).pack(fill="x", pady=2)
         
-        # 2. Points
-        tk.Label(toolbar, text="--- Ruta ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(15,5))
-        self.lbl_start = tk.Label(toolbar, text="Inicio: N/A", bg="#eee", fg="blue")
-        self.lbl_start.pack()
-        self.lbl_end = tk.Label(toolbar, text="Fin: N/A", bg="#eee", fg="red")
-        self.lbl_end.pack()
+        # Group 1: Mapa
+        frame_map = tk.LabelFrame(toolbar, text="Mapa", bg="#f0f0f0", font=("Arial", 10, "bold"), padx=5, pady=5)
+        frame_map.pack(fill="x", pady=5)
+        tk.Button(frame_map, text="📂 Cargar Mapa (CSV)", command=self._load_map_dialog, bg="#e0e0e0").pack(fill="x")
         
-        tk.Button(toolbar, text="Limpiar Puntos", command=self._clear_points).pack(fill="x", pady=2)
+        # Group 2: Navegación
+        frame_nav = tk.LabelFrame(toolbar, text="Navegación", bg="#f0f0f0", font=("Arial", 10, "bold"), padx=5, pady=5)
+        frame_nav.pack(fill="x", pady=5)
         
-        # 3. Time Config
-        tk.Label(toolbar, text="--- Hora (0-23) ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(15,5))
-        self.spin_hour = tk.Spinbox(toolbar, from_=0, to=23, width=5, command=self._on_hour_change)
+        self.lbl_start = tk.Label(frame_nav, text="Inicio: --", bg="#f0f0f0", fg="blue", font=("Consolas", 9))
+        self.lbl_start.pack(anchor="w")
+        self.lbl_end = tk.Label(frame_nav, text="Fin:    --", bg="#f0f0f0", fg="red", font=("Consolas", 9))
+        self.lbl_end.pack(anchor="w")
+        
+        tk.Button(frame_nav, text="🧹 Limpiar Puntos", command=self._clear_points).pack(fill="x", pady=5)
+        
+        tk.Label(frame_nav, text="Hora (0-23):", bg="#f0f0f0").pack(anchor="w")
+        self.spin_hour = tk.Spinbox(frame_nav, from_=0, to=23, width=5, command=self._on_hour_change)
         self.spin_hour.delete(0, "end")
         self.spin_hour.insert(0, 12)
-        self.spin_hour.pack()
+        self.spin_hour.pack(fill="x")
+
+        tk.Button(frame_nav, text="🚀 Calcular Ruta", command=self._calculate_route, bg="#4CAF50", fg="white", font=("Arial", 9, "bold")).pack(fill="x", pady=10)
         
-        # 4. Calculate
-        tk.Button(toolbar, text="Calcular Ruta", command=self._calculate_route, bg="#4CAF50", fg="white").pack(fill="x", pady=(10, 2))
+        # Group 3: Destinos
+        frame_dest = tk.LabelFrame(toolbar, text="Destinos", bg="#f0f0f0", font=("Arial", 10, "bold"), padx=5, pady=5)
+        frame_dest.pack(fill="x", pady=5)
         
-        # 5. Destinations
-        tk.Label(toolbar, text="--- Destinos ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(15,5))
-        self.listbox_dest = tk.Listbox(toolbar, height=5)
+        self.listbox_dest = tk.Listbox(frame_dest, height=4)
         self.listbox_dest.pack(fill="x")
         
-        btn_frame_dest = tk.Frame(toolbar, bg="#eee")
-        btn_frame_dest.pack(fill="x")
-        tk.Button(btn_frame_dest, text="Guardar", command=self._save_destination, width=8).pack(side="left", padx=1)
-        tk.Button(btn_frame_dest, text="Borrar", command=self._delete_destination, width=8).pack(side="right", padx=1)
-        tk.Button(toolbar, text="Ir a Destino", command=self._load_destination_to_end).pack(fill="x", pady=2)
+        btn_frame_dest = tk.Frame(frame_dest, bg="#f0f0f0")
+        btn_frame_dest.pack(fill="x", pady=2)
+        tk.Button(btn_frame_dest, text="💾 Guardar", command=self._save_destination, width=8).pack(side="left")
+        tk.Button(btn_frame_dest, text="🗑️ Borrar", command=self._delete_destination, width=8).pack(side="right")
+        tk.Button(frame_dest, text="📍 Ir a Destino", command=self._load_destination_to_end).pack(fill="x", pady=2)
 
-        # 6. Extra
-        tk.Label(toolbar, text="--- Extras ---", bg="#eee", font=("Arial", 10, "bold")).pack(pady=(15,5))
-        tk.Button(toolbar, text="Planificar", command=self._plan_trip).pack(fill="x")
-        tk.Button(toolbar, text="Modificar Mapa", command=self._modify_map_mode).pack(fill="x")
+        # Legend
+        frame_legend = tk.LabelFrame(toolbar, text="Leyenda", bg="#f0f0f0", font=("Arial", 9), padx=5, pady=5)
+        frame_legend.pack(fill="x", pady=5, side="bottom")
+        tk.Label(frame_legend, text="⬜ Calle (2)", bg="#f0f0f0").pack(anchor="w")
+        tk.Label(frame_legend, text="🟨 Avenida (1/4)", bg="#f0f0f0", fg="#D4AC0D").pack(anchor="w")
+        tk.Label(frame_legend, text="🟥 Cruce (2/3)", bg="#f0f0f0", fg="red").pack(anchor="w")
+
         
         # Placeholder Canvas
         self.map_canvas = MapCanvas(self.canvas_frame, None, [], on_click_callback=self._on_map_click)
