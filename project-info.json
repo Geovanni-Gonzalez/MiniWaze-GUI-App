@@ -1,31 +1,54 @@
 {
-    "project": "MiniWaze GUI App",
-    "tech": [
-        "Python",
-        "Tkinter",
-        "Graph Theory",
-        "Dijkstra Algorithm"
-    ],
-    "features": [
-        "Interactive Grid Map with Directional Traffic",
-        "Cost-based Pathfinding (Peak/Normal Hours)",
-        "Visual Route Simulation with Vehicle Animation",
-        "Destination Management (Save/Load/Delete)",
-        "Dark/Light Mode Theme Toggle",
-        "Authentication System"
-    ],
-    "stack": {
-        "language": "Python 3.x",
-        "framework": "Tkinter",
-        "tools": [
-            "CSV (Map Data)",
-            "Unittest (Verification)"
+    "en": {
+        "tech": [
+            "Python",
+            "Tkinter (GUI)",
+            "Graph Theory",
+            "Dijkstra Algorithm"
         ],
-        "database": "File-based (Usuarios.txt, mapa.csv)"
+        "features": [
+            "Interactive grid map with directional traffic logic",
+            "Cost-based pathfinding (Peak vs Normal hours)",
+            "Visual route simulation with vector-based animations",
+            "Destination management system (Save, Load, Delete)",
+            "Responsive Dark/Light mode theme system"
+        ],
+        "stack": {
+            "language": "Python 3",
+            "framework": "Tkinter",
+            "tools": [
+                "CSV Serialization",
+                "Unittest"
+            ],
+            "database": "Text-Based Hierarchy (.txt / .csv)"
+        },
+        "screenshots": [],
+        "description": "Desktop navigation application simulating Waze. Uses weighted directed graphs to calculate optimal routes based on traffic and street direction."
     },
-    "screenshots": [],
-    "description": {
-        "es": "Aplicación de navegación de escritorio que simula Waze. Utiliza grafos dirigidos ponderados para calcular rutas óptimas basándose en el tráfico (hora pico/normal) y la dirección de las calles. Incluye animación de vehículos y gestión de destinos.",
-        "en": "Desktop navigation application simulating Waze. Uses weighted directed graphs to calculate optimal routes based on traffic (peak/normal hours) and street direction. Includes vehicle animation and destination management."
+    "es": {
+        "tech": [
+            "Python",
+            "Tkinter (GUI)",
+            "Teoría de Grafos",
+            "Algoritmo Dijkstra"
+        ],
+        "features": [
+            "Mapa interactivo con lógica de tráfico direccional",
+            "Búsqueda de rutas por costo (Hora Pico vs Normal)",
+            "Simulación visual de rutas con animaciones vectoriales",
+            "Sistema de gestión de destinos (Guardar, Cargar, Eliminar)",
+            "Sistema de temas responsivo con Modo Oscuro/Claro"
+        ],
+        "stack": {
+            "language": "Python 3",
+            "framework": "Tkinter",
+            "tools": [
+                "Serialización CSV",
+                "Unittest"
+            ],
+            "database": "Jerarquía de Archivos (.txt / .csv)"
+        },
+        "screenshots": [],
+        "description": "Aplicación de navegación de escritorio que simula Waze. Utiliza grafos dirigidos ponderados para calcular rutas óptimas basándose en el tráfico y la dirección de las calles."
     }
 }
