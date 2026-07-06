@@ -1,5 +1,7 @@
 ﻿# MiniWaze GUI App
 
+[![CI](https://github.com/Geovanni-Gonzalez/MiniWaze-GUI-App/actions/workflows/ci.yml/badge.svg)](https://github.com/Geovanni-Gonzalez/MiniWaze-GUI-App/actions/workflows/ci.yml)
+
 ## Descripción
 Aplicación gráfica en Python que carga un mapa CSV, gestióna usuarios y calcula rutas sobre un grafo.
 
