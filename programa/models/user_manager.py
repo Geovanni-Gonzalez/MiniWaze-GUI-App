@@ -1,3 +1,6 @@
+import hashlib
+
+
 class UserManager:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -16,7 +19,9 @@ class UserManager:
             print(f"Error: User file {self.file_path} not found.")
 
     def authenticate(self, username, password):
+        """Compara el SHA-256 de la contraseña ingresada contra el hash almacenado."""
         if username in self.users:
-            if self.users[username] == password:
+            hashed = hashlib.sha256(password.encode("utf-8")).hexdigest()
+            if self.users[username] == hashed:
                 return True
         return False
